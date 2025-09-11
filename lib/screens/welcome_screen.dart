@@ -1,5 +1,7 @@
+import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // Floating particles animation
 class FloatingParticles extends StatefulWidget {
@@ -252,10 +254,20 @@ class _AnimatedGradientBackgroundState extends State<AnimatedGradientBackground>
   }
 }
 
-class WelcomeScreen extends StatelessWidget {
+class WelcomeScreen extends StatefulWidget {
   const WelcomeScreen({super.key});
 
-  // Enhanced Cyberpunk 2077 color palette
+  @override
+  State<WelcomeScreen> createState() => _WelcomeScreenState();
+}
+
+class _WelcomeScreenState extends State<WelcomeScreen>
+    with TickerProviderStateMixin {
+  late AnimationController _countdownController;
+  late Timer _timer;
+  Duration _timeUntilEvent = Duration.zero;
+
+  // Enhanced Cyberpunk 2077 color palette for event management
   static const Color cyberCyan = Color(0xFF00F0FF);
   static const Color cyberPink = Color(0xFFFF0080);
   static const Color cyberYellow = Color(0xFFFFFF00);
@@ -264,6 +276,39 @@ class WelcomeScreen extends StatelessWidget {
   static const Color darkBackground = Color(0xFF0A0A0F);
   static const Color cardBackground = Color(0xFF1A1A2E);
   static const Color surfaceColor = Color(0xFF16213E);
+  static const Color neonGreen = Color(0xFF00FF88);
+
+  @override
+  void initState() {
+    super.initState();
+    _countdownController = AnimationController(
+      duration: const Duration(seconds: 2),
+      vsync: this,
+    )..repeat(reverse: true);
+
+    _updateCountdown();
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      _updateCountdown();
+    });
+  }
+
+  @override
+  void dispose() {
+    _countdownController.dispose();
+    _timer.cancel();
+    super.dispose();
+  }
+
+  void _updateCountdown() {
+    final now = DateTime.now();
+    final eventDate = DateTime(2025, 9, 25);
+    setState(() {
+      _timeUntilEvent = eventDate.difference(now);
+      if (_timeUntilEvent.isNegative) {
+        _timeUntilEvent = Duration.zero;
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -272,185 +317,368 @@ class WelcomeScreen extends StatelessWidget {
       body: FloatingParticles(
         child: AnimatedGradientBackground(
           child: SafeArea(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Column(
-                children: [
-                  const SizedBox(height: 20),
+            child: SingleChildScrollView(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 20),
 
-                  // Enhanced header
-                  Container(
-                    padding: const EdgeInsets.symmetric(vertical: 20),
-                    child: Column(
-                      children: [
-                        GlowText(
-                          text: 'GATEWAYS',
-                          glowColor: cyberCyan,
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontSize: 32,
-                            fontWeight: FontWeight.w900,
-                            letterSpacing: 6,
-                            fontFamily: 'monospace',
+                    // Enhanced header with event management focus
+                    Container(
+                      padding: const EdgeInsets.symmetric(vertical: 20),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              Icon(
+                                Icons.event_available,
+                                color: cyberCyan,
+                                size: 32,
+                              ),
+                              const SizedBox(width: 12),
+                              GlowText(
+                                text: 'GATEWAYS',
+                                glowColor: cyberCyan,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 28,
+                                  fontWeight: FontWeight.w900,
+                                  letterSpacing: 4,
+                                  fontFamily: 'monospace',
+                                ),
+                              ),
+                            ],
                           ),
-                        ),
-                        const SizedBox(height: 12),
-                        Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 8,
-                          ),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(20),
-                            border: Border.all(
-                              color: cyberYellow.withOpacity(0.4),
-                              width: 1,
+                          const SizedBox(height: 8),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
                             ),
-                            gradient: LinearGradient(
-                              colors: [
-                                cyberYellow.withOpacity(0.1),
-                                Colors.transparent,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: neonGreen.withOpacity(0.6),
+                                width: 1,
+                              ),
+                              gradient: LinearGradient(
+                                colors: [
+                                  neonGreen.withOpacity(0.1),
+                                  Colors.transparent,
+                                ],
+                              ),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.rocket_launch,
+                                  color: neonGreen,
+                                  size: 16,
+                                ),
+                                const SizedBox(width: 8),
+                                Text(
+                                  'EVENT REGISTRATION PORTAL',
+                                  style: TextStyle(
+                                    color: neonGreen,
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 1,
+                                    fontFamily: 'monospace',
+                                  ),
+                                ),
                               ],
                             ),
                           ),
-                          child: Text(
-                            '> FUTURE OF DIGITAL EVENTS',
+                          const SizedBox(height: 16),
+                          Text(
+                            'Discover • Register • Participate',
                             style: TextStyle(
-                              color: cyberYellow,
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              letterSpacing: 1,
+                              color: cyberYellow.withOpacity(0.8),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    const SizedBox(height: 30),
+
+                    // Large Event Countdown Section
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 30,
+                        horizontal: 20,
+                      ),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(20),
+                        gradient: LinearGradient(
+                          colors: [
+                            cardBackground.withOpacity(0.9),
+                            surfaceColor.withOpacity(0.7),
+                            darkBackground.withOpacity(0.8),
+                          ],
+                        ),
+                        border: Border.all(
+                          color: cyberCyan.withOpacity(0.3),
+                          width: 2,
+                        ),
+                        boxShadow: [
+                          BoxShadow(
+                            color: cyberPurple.withOpacity(0.1),
+                            blurRadius: 15,
+                            spreadRadius: 1,
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            'EVENT COUNTDOWN',
+                            style: TextStyle(
+                              color: cyberCyan,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w700,
+                              letterSpacing: 2,
                               fontFamily: 'monospace',
                             ),
                           ),
-                        ),
-                      ],
+                          const SizedBox(height: 20),
+                          _buildLargeCountdownItem(),
+                        ],
+                      ),
                     ),
-                  ),
 
-                  const SizedBox(height: 20),
+                    const SizedBox(height: 30),
 
-                  // Animated divider
-                  AnimatedDivider(),
+                    // Quick Stats Section
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: LinearGradient(
+                          colors: [
+                            cyberPurple.withOpacity(0.1),
+                            cyberCyan.withOpacity(0.05),
+                          ],
+                        ),
+                        border: Border.all(
+                          color: cyberPurple.withOpacity(0.3),
+                          width: 1,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          _buildStatItem('11', 'Events', cyberCyan),
+                          _buildStatItem('24/7', 'Support', neonGreen),
+                        ],
+                      ),
+                    ),
 
-                  const SizedBox(height: 30),
+                    const SizedBox(height: 30),
 
-                  // Enhanced grid layout
-                  Expanded(
-                    child: GridView.count(
+                    // Main Navigation Grid
+                    Text(
+                      'EXPLORE CATEGORIES',
+                      style: TextStyle(
+                        color: cyberYellow,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 1,
+                      ),
+                    ),
+                    const SizedBox(height: 16),
+
+                    GridView.count(
                       crossAxisCount: 2,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
-                      childAspectRatio: 0.85,
+                      childAspectRatio: 0.9,
+                      shrinkWrap: true,
+                      physics: const NeverScrollableScrollPhysics(),
                       children: [
-                        ModernCyberCard(
+                        EventCategoryCard(
                           title: 'EVENTS',
-                          subtitle: 'Upcoming Sessions',
-                          icon: Icons.event_available_outlined,
+                          subtitle: 'Coding & IT',
+                          icon: Icons.computer,
                           accent: cyberCyan,
-                          index: 0,
+                          eventCount: 11,
                           onTap: () => Navigator.pushNamed(context, '/events'),
                         ),
-                        ModernCyberCard(
+                        EventCategoryCard(
                           title: 'BROCHURE',
-                          subtitle: 'Meet The Team',
-                          icon: Icons.groups_outlined,
+                          subtitle: 'Meet the Team',
+                          icon: Icons.sports_esports,
                           accent: cyberPink,
-                          index: 1,
-                          onTap: () =>
-                              Navigator.pushNamed(context, '/brochure'),
+                          onTap: () async {
+                            final url = Uri.parse(
+                              'https://heyzine.com/flip-book/746bdd4368.html',
+                            );
+                            try {
+                              await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                                webViewConfiguration:
+                                    const WebViewConfiguration(
+                                      enableJavaScript: true,
+                                    ),
+                              );
+                            } catch (e) {
+                              // Fallback: show error message
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Could not open brochure link: $e',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          },
                         ),
-                        ModernCyberCard(
+                        EventCategoryCard(
                           title: 'ABOUT',
-                          subtitle: 'System Info',
-                          icon: Icons.info_outline,
+                          subtitle: 'Mission & Vision',
+                          icon: Icons.palette,
                           accent: cyberYellow,
-                          index: 2,
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text('About section loading...'),
-                                backgroundColor: cyberYellow.withOpacity(0.2),
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            );
-                          },
+                          onTap: () => Navigator.pushNamed(context, '/events'),
                         ),
-                        ModernCyberCard(
-                          title: 'CONFIG',
-                          subtitle: 'Settings Panel',
-                          icon: Icons.settings_outlined,
-                          accent: cyberPurple,
-                          index: 3,
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: const Text('Settings accessed'),
-                                backgroundColor: cyberPurple.withOpacity(0.2),
-                                behavior: SnackBarBehavior.floating,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(10),
-                                ),
-                              ),
-                            );
-                          },
-                        ),
+                        // Empty container to center the ABOUT card
+                        const SizedBox.shrink(),
                       ],
                     ),
-                  ),
 
-                  const SizedBox(height: 20),
-
-                  // Enhanced footer
-                  // Container(
-                  //   padding: const EdgeInsets.symmetric(
-                  //     horizontal: 20,
-                  //     vertical: 12,
-                  //   ),
-                  //   decoration: BoxDecoration(
-                  //     borderRadius: BorderRadius.circular(25),
-                  //     border: Border.all(
-                  //       color: cyberCyan.withOpacity(0.2),
-                  //       width: 1,
-                  //     ),
-                  //     gradient: LinearGradient(
-                  //       colors: [
-                  //         cyberCyan.withOpacity(0.05),
-                  //         Colors.transparent,
-                  //       ],
-                  //     ),
-                  //   ),
-                  //   child: Row(
-                  //     mainAxisAlignment: MainAxisAlignment.center,
-                  //     children: [
-                  //       Icon(
-                  //         Icons.security_outlined,
-                  //         color: cyberCyan.withOpacity(0.7),
-                  //         size: 16,
-                  //       ),
-                  //       const SizedBox(width: 8),
-                  //       Text(
-                  //         'NEURAL INTERFACE ACTIVE • 2077 EDITION',
-                  //         style: TextStyle(
-                  //           color: cyberCyan.withOpacity(0.7),
-                  //           fontSize: 10,
-                  //           fontFamily: 'monospace',
-                  //           letterSpacing: 0.5,
-                  //         ),
-                  //       ),
-                  //     ],
-                  //   ),
-                  // ),
-                  const SizedBox(height: 10),
-                ],
+                    const SizedBox(height: 20),
+                  ],
+                ),
               ),
             ),
           ),
         ),
       ),
+    );
+  }
+
+  Widget _buildLargeCountdownItem() {
+    return AnimatedBuilder(
+      animation: _countdownController,
+      builder: (context, child) {
+        final days = _timeUntilEvent.inDays;
+        final hours = _timeUntilEvent.inHours % 24;
+        final minutes = _timeUntilEvent.inMinutes % 60;
+        final seconds = _timeUntilEvent.inSeconds % 60;
+
+        return Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(child: _buildCountdownUnit(days, 'DAYS')),
+                const SizedBox(width: 8),
+                Expanded(child: _buildCountdownUnit(hours, 'HOURS')),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Expanded(child: _buildCountdownUnit(minutes, 'MINS')),
+                const SizedBox(width: 8),
+                Expanded(child: _buildCountdownUnit(seconds, 'SECS')),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  Widget _buildCountdownUnit(int value, String label) {
+    return AnimatedBuilder(
+      animation: _countdownController,
+      builder: (context, child) {
+        return Container(
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 16),
+          decoration: BoxDecoration(
+            borderRadius: BorderRadius.circular(12),
+            gradient: LinearGradient(
+              colors: [
+                surfaceColor.withOpacity(0.8),
+                cardBackground.withOpacity(0.6),
+              ],
+            ),
+            border: Border.all(color: cyberCyan.withOpacity(0.4), width: 1.5),
+          ),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              ShaderMask(
+                shaderCallback: (bounds) {
+                  return LinearGradient(
+                    colors: [cyberYellow, cyberPink, cyberCyan],
+                    stops: [0.0, 0.5, 1.0],
+                  ).createShader(bounds);
+                },
+                child: Text(
+                  value.toString().padLeft(2, '0'),
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'monospace',
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: cyberCyan.withOpacity(0.7),
+                  fontSize: 9,
+                  fontWeight: FontWeight.w600,
+                  letterSpacing: 0.5,
+                  fontFamily: 'monospace',
+                ),
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildStatItem(String value, String label, Color color) {
+    return Column(
+      children: [
+        Text(
+          value,
+          style: TextStyle(
+            color: color,
+            fontSize: 24,
+            fontWeight: FontWeight.w900,
+            fontFamily: 'monospace',
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          label,
+          style: TextStyle(
+            color: color.withOpacity(0.7),
+            fontSize: 12,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ],
     );
   }
 }
@@ -492,10 +720,10 @@ class _AnimatedDividerState extends State<AnimatedDivider>
             gradient: LinearGradient(
               colors: [
                 Colors.transparent,
-                WelcomeScreen.cyberCyan.withOpacity(0.8),
-                WelcomeScreen.cyberPink.withOpacity(0.8),
-                WelcomeScreen.cyberYellow.withOpacity(0.8),
-                WelcomeScreen.cyberPurple.withOpacity(0.8),
+                _WelcomeScreenState.cyberCyan.withOpacity(0.8),
+                _WelcomeScreenState.cyberPink.withOpacity(0.8),
+                _WelcomeScreenState.cyberYellow.withOpacity(0.8),
+                _WelcomeScreenState.cyberPurple.withOpacity(0.8),
                 Colors.transparent,
               ],
               stops: [
@@ -509,7 +737,7 @@ class _AnimatedDividerState extends State<AnimatedDivider>
             ),
             boxShadow: [
               BoxShadow(
-                color: WelcomeScreen.cyberCyan.withOpacity(0.3),
+                color: _WelcomeScreenState.cyberCyan.withOpacity(0.3),
                 blurRadius: 10,
                 spreadRadius: 1,
               ),
@@ -651,9 +879,9 @@ class _ModernCyberCardState extends State<ModernCyberCard>
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      WelcomeScreen.cardBackground.withOpacity(0.9),
-                      WelcomeScreen.surfaceColor.withOpacity(0.7),
-                      WelcomeScreen.darkBackground.withOpacity(0.95),
+                      _WelcomeScreenState.cardBackground.withOpacity(0.9),
+                      _WelcomeScreenState.surfaceColor.withOpacity(0.7),
+                      _WelcomeScreenState.darkBackground.withOpacity(0.95),
                     ],
                   ),
                   border: Border.all(
@@ -870,6 +1098,237 @@ class _ModernCyberCardState extends State<ModernCyberCard>
                         ),
                     ],
                   ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+}
+
+// Event Category Card for the redesigned welcome screen
+class EventCategoryCard extends StatefulWidget {
+  final String title;
+  final String subtitle;
+  final IconData icon;
+  final VoidCallback onTap;
+  final Color accent;
+  final int? eventCount;
+
+  const EventCategoryCard({
+    super.key,
+    required this.title,
+    required this.subtitle,
+    required this.icon,
+    required this.onTap,
+    required this.accent,
+    this.eventCount,
+  });
+
+  @override
+  State<EventCategoryCard> createState() => _EventCategoryCardState();
+}
+
+class _EventCategoryCardState extends State<EventCategoryCard>
+    with TickerProviderStateMixin {
+  late AnimationController _hoverController;
+  late Animation<double> _scaleAnimation;
+  late Animation<double> _glowAnimation;
+  bool _isHovered = false;
+
+  @override
+  void initState() {
+    super.initState();
+
+    _hoverController = AnimationController(
+      duration: const Duration(milliseconds: 200),
+      vsync: this,
+    );
+
+    _scaleAnimation = Tween<double>(
+      begin: 1.0,
+      end: 1.05,
+    ).animate(CurvedAnimation(parent: _hoverController, curve: Curves.easeOut));
+
+    _glowAnimation = Tween<double>(
+      begin: 0.0,
+      end: 1.0,
+    ).animate(CurvedAnimation(parent: _hoverController, curve: Curves.easeOut));
+  }
+
+  @override
+  void dispose() {
+    _hoverController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedBuilder(
+      animation: _hoverController,
+      builder: (context, child) {
+        return Transform.scale(
+          scale: _scaleAnimation.value,
+          child: GestureDetector(
+            onTap: widget.onTap,
+            child: MouseRegion(
+              onEnter: (_) {
+                setState(() => _isHovered = true);
+                _hoverController.forward();
+              },
+              onExit: (_) {
+                setState(() => _isHovered = false);
+                _hoverController.reverse();
+              },
+              child: Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      widget.accent.withOpacity(0.15),
+                      widget.accent.withOpacity(0.05),
+                      _WelcomeScreenState.darkBackground.withOpacity(0.9),
+                    ],
+                  ),
+                  border: Border.all(
+                    color: widget.accent.withOpacity(_isHovered ? 0.8 : 0.4),
+                    width: _isHovered ? 2 : 1,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: widget.accent.withOpacity(
+                        0.2 * _glowAnimation.value,
+                      ),
+                      blurRadius: 20,
+                      spreadRadius: _isHovered ? 3 : 1,
+                    ),
+                  ],
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Icon and count
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: widget.accent.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(10),
+                          ),
+                          child: widget.title == 'BROCHURE'
+                              ? Image.asset(
+                                  'assets/icons/brochure.png',
+                                  width: 24,
+                                  height: 24,
+                                  color: widget.accent,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(
+                                      Icons.description,
+                                      color: widget.accent,
+                                      size: 24,
+                                    );
+                                  },
+                                )
+                              : widget.title == 'ABOUT'
+                              ? Image.asset(
+                                  'assets/icons/about.png',
+                                  width: 24,
+                                  height: 24,
+                                  color: widget.accent,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(
+                                      Icons.info,
+                                      color: widget.accent,
+                                      size: 24,
+                                    );
+                                  },
+                                )
+                              : Icon(
+                                  widget.icon,
+                                  color: widget.accent,
+                                  size: 24,
+                                ),
+                        ),
+                        if (widget.eventCount != null)
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: _WelcomeScreenState.neonGreen.withOpacity(
+                                0.2,
+                              ),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Text(
+                              '${widget.eventCount}',
+                              style: TextStyle(
+                                color: _WelcomeScreenState.neonGreen,
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+
+                    const SizedBox(height: 16),
+
+                    // Title
+                    Text(
+                      widget.title,
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.5,
+                      ),
+                    ),
+
+                    const SizedBox(height: 4),
+
+                    // Subtitle
+                    Text(
+                      widget.subtitle,
+                      style: TextStyle(
+                        color: widget.accent.withOpacity(0.7),
+                        fontSize: 12,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+
+                    const SizedBox(height: 12),
+
+                    // Action indicator
+                    Row(
+                      children: [
+                        Text(
+                          'Explore Events',
+                          style: TextStyle(
+                            color: widget.accent.withOpacity(0.6),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(width: 4),
+                        Icon(
+                          Icons.arrow_forward,
+                          color: widget.accent.withOpacity(0.6),
+                          size: 12,
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
               ),
             ),

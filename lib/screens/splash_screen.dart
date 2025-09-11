@@ -278,7 +278,10 @@ class _AnimatedSplashUIState extends State<AnimatedSplashUI>
           const SizedBox(height: 24),
           _buildGlitchyTitle('GATEWAYS 2025'),
           const SizedBox(height: 8),
-          Text('Powered by Google Forms', style: CyberpunkTheme.subtitleStyle),
+          Text(
+            'Powered by COMPUTER SCIENCE',
+            style: CyberpunkTheme.subtitleStyle,
+          ),
           const Spacer(flex: 4),
           _buildLoadingIndicator(),
           const SizedBox(height: 48),

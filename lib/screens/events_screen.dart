@@ -75,19 +75,70 @@ class _EventsScreenState extends State<EventsScreen>
 
   final List<EventModel> _events = [
     EventModel(
-      title: 'Cyber-Hack 2025',
-      description: 'A 24-hour hackathon to build the future.',
-      imagePath: '',
+      title: 'IT Quiz',
+      description:
+          'Test your knowledge across various IT domains including networking, databases, and emerging technologies.',
+      imagePath: 'assets/images/1.png',
     ),
     EventModel(
-      title: 'Robo-Wars',
-      description: 'Build and battle your own robot.',
-      imagePath: '',
+      title: 'IT Manager',
+      description:
+          'Leadership simulation challenges focusing on project management and team coordination skills.',
+      imagePath: 'assets/images/2.png',
     ),
     EventModel(
-      title: 'Tech Conference',
-      description: 'Talks from industry leaders.',
-      imagePath: '',
+      title: 'Surprise Event',
+      description:
+          'Mystery challenge with unknown format - be prepared for anything and showcase your adaptability.',
+      imagePath: 'assets/images/3.png',
+    ),
+    EventModel(
+      title: 'Treasure Hunt',
+      description:
+          'Adventure-based problem solving with clues, puzzles, and exploration challenges.',
+      imagePath: 'assets/images/4.png',
+    ),
+    EventModel(
+      title: 'Gaming',
+      description:
+          'Competitive esports tournaments featuring popular games and strategic gaming challenges.',
+      imagePath: 'assets/images/5.png',
+    ),
+    EventModel(
+      title: 'Photography',
+      description:
+          'Capture stunning moments and showcase your creative vision through the lens of photography.',
+      imagePath: 'assets/images/6.png',
+    ),
+    EventModel(
+      title: 'IoT',
+      description:
+          'Internet of Things challenges combining hardware programming with creative software solutions.',
+      imagePath: 'assets/images/7.png',
+    ),
+    EventModel(
+      title: 'Capture The Flag',
+      description:
+          'Cybersecurity challenges involving cryptography, reverse engineering, and vulnerability exploitation.',
+      imagePath: 'assets/images/8.png',
+    ),
+    EventModel(
+      title: 'Coding & Debugging',
+      description:
+          'Debug complex algorithms and solve challenging coding problems to test your programming skills.',
+      imagePath: 'assets/images/9.png',
+    ),
+    EventModel(
+      title: 'UI/UX',
+      description:
+          'Design beautiful and intuitive user interfaces while creating exceptional user experiences.',
+      imagePath: 'assets/images/10.png',
+    ),
+    EventModel(
+      title: 'Hackathon',
+      description:
+          '48-hour coding marathon to build innovative solutions and showcase your development expertise.',
+      imagePath: 'assets/images/11.png',
     ),
   ];
 
@@ -102,96 +153,30 @@ class _EventsScreenState extends State<EventsScreen>
         forceMaterialTransparency: true,
         leading: Padding(
           padding: const EdgeInsets.only(left: 12.0),
-          child: AnimatedBuilder(
-            animation: _textController,
-            builder: (context, child) {
-              final animationProgress = _textController.value;
-              final glowIntensity =
-                  math.sin(animationProgress * 2 * math.pi) * 0.3 + 0.7;
-
-              return Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  gradient: RadialGradient(
-                    colors: [
-                      Color.lerp(
-                        AppColors.neonCyan.withOpacity(0.2),
-                        AppColors.accentColor.withOpacity(0.2),
-                        animationProgress,
-                      )!,
-                      Color.lerp(
-                        AppColors.accentColor.withOpacity(0.15),
-                        AppColors.neonYellow.withOpacity(0.15),
-                        animationProgress,
-                      )!,
-                      Colors.black.withOpacity(0.6),
-                    ],
-                    stops: const [0.0, 0.6, 1.0],
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Color.lerp(
-                        AppColors.neonCyan,
-                        AppColors.accentColor,
-                        animationProgress,
-                      )!.withOpacity(0.3 * glowIntensity),
-                      blurRadius: 8,
-                      spreadRadius: 1,
-                    ),
-                    BoxShadow(
-                      color: Color.lerp(
-                        AppColors.accentColor,
-                        AppColors.neonYellow,
-                        animationProgress,
-                      )!.withOpacity(0.2 * glowIntensity),
-                      blurRadius: 12,
-                      spreadRadius: 0,
-                    ),
-                  ],
-                  border: Border.all(
-                    color: Color.lerp(
-                      AppColors.neonCyan,
-                      AppColors.accentColor,
-                      animationProgress,
-                    )!.withOpacity(0.4),
-                    width: 1,
-                  ),
-                ),
-                child: IconButton(
-                  tooltip: 'Back',
-                  onPressed: () async {
-                    // Prefer popping the current route; if nothing to pop, navigate to welcome screen
-                    final popped = await Navigator.maybePop(context);
-                    if (!popped) {
-                      Navigator.pushReplacementNamed(context, '/welcome');
-                    }
-                  },
-                  icon: ShaderMask(
-                    shaderCallback: (bounds) => LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [
-                        Color.lerp(
-                          AppColors.neonCyan,
-                          AppColors.neonYellow,
-                          animationProgress,
-                        )!,
-                        Color.lerp(
-                          AppColors.accentColor,
-                          AppColors.neonCyan,
-                          animationProgress,
-                        )!,
-                      ],
-                    ).createShader(bounds),
-                    child: const Icon(
-                      Icons.arrow_back_ios_new,
-                      color: Colors.white,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              );
-            },
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              color: Colors.black.withOpacity(0.6),
+              border: Border.all(
+                color: AppColors.neonCyan.withOpacity(0.4),
+                width: 1,
+              ),
+            ),
+            child: IconButton(
+              tooltip: 'Back',
+              onPressed: () async {
+                // Prefer popping the current route; if nothing to pop, navigate to welcome screen
+                final popped = await Navigator.maybePop(context);
+                if (!popped) {
+                  Navigator.pushReplacementNamed(context, '/welcome');
+                }
+              },
+              icon: const Icon(
+                Icons.arrow_back_ios_new,
+                color: Colors.white,
+                size: 20,
+              ),
+            ),
           ),
         ),
         title: AnimatedBuilder(
@@ -226,6 +211,7 @@ class _EventsScreenState extends State<EventsScreen>
                   ],
                 ).createShader(bounds);
               },
+              blendMode: BlendMode.srcIn,
               child: Text(
                 'Events',
                 style: TextStyle(
@@ -234,14 +220,14 @@ class _EventsScreenState extends State<EventsScreen>
                   color: Colors.white,
                   shadows: [
                     Shadow(
-                      blurRadius: 10,
-                      color: AppColors.neonCyan.withOpacity(0.8),
+                      blurRadius: 6,
+                      color: AppColors.neonCyan.withOpacity(0.4),
                       offset: const Offset(0, 0),
                     ),
                     Shadow(
-                      blurRadius: 18,
-                      color: AppColors.accentColor.withOpacity(0.6),
-                      offset: const Offset(2, 1),
+                      blurRadius: 12,
+                      color: AppColors.accentColor.withOpacity(0.3),
+                      offset: const Offset(1, 0),
                     ),
                   ],
                 ),
