@@ -1,10 +1,8 @@
 import 'dart:math';
-import 'dart:ui' as ui;
 import 'dart:async';
 import 'package:flutter/material.dart';
-import '../../../core/constants/cyberpunk_theme.dart';
 
-/// Main splash screen widget that handles initialization and navigation
+/// Main splash screen widget for innovative event management app
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
@@ -22,49 +20,62 @@ class _SplashScreenState extends State<SplashScreen> {
   /// Shows the splash screen for a fixed duration, then navigates.
   Future<void> _initializeApp() async {
     // Show splash screen for a minimum duration for animations to play.
-    await Future.delayed(const Duration(seconds: 4));
+    await Future.delayed(const Duration(seconds: 5));
 
     if (mounted) {
       // Always navigate to the welcome screen.
-      // pushReplacementNamed prevents the user from going back to the splash screen.
       Navigator.pushReplacementNamed(context, '/welcome');
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    return const AnimatedSplashUI();
+    return const EventManagementSplashUI();
   }
 }
 
-// --- NO CHANGES BELOW THIS LINE ---
-// The AnimatedSplashUI and other helper classes remain the same as they
-// are purely for visual presentation.
-
-/// Animated UI component for the Cyberpunk-themed splash screen
-class AnimatedSplashUI extends StatefulWidget {
-  const AnimatedSplashUI({super.key});
+/// Innovative Event Management Splash Screen with Cyberpunk Theme
+class EventManagementSplashUI extends StatefulWidget {
+  const EventManagementSplashUI({super.key});
 
   @override
-  State<AnimatedSplashUI> createState() => _AnimatedSplashUIState();
+  State<EventManagementSplashUI> createState() =>
+      _EventManagementSplashUIState();
 }
 
-class _AnimatedSplashUIState extends State<AnimatedSplashUI>
+class _EventManagementSplashUIState extends State<EventManagementSplashUI>
     with TickerProviderStateMixin {
-  late AnimationController _neonSweepController;
-  late AnimationController _glowPulseController;
-  late AnimationController _logoPulseController;
-  late AnimationController _glitchController;
-  late AnimationController _particleController;
-  late AnimationController _fadeController;
-  late Animation<double> _fadeAnimation;
+  // Cyberpunk color palette
+  static const Color cyberCyan = Color(0xFF00F0FF);
+  static const Color cyberPink = Color(0xFFFF0080);
+  static const Color cyberYellow = Color(0xFFFFFF00);
+  static const Color cyberPurple = Color(0xFF9D00FF);
+  static const Color darkBackground = Color(0xFF0A0A0F);
+  static const Color cardBackground = Color(0xFF1A1A2E);
+  static const Color neonGreen = Color(0xFF00FF88);
 
+  // Animation controllers
+  late AnimationController _logoController;
+  late AnimationController _particleController;
+  late AnimationController _textController;
+  late AnimationController _progressController;
+  late AnimationController _glowController;
+  late AnimationController _circuitController;
+
+  // Animations
+  late Animation<double> _logoScale;
+  late Animation<double> _textOpacity;
+  late Animation<double> _progressValue;
+  late Animation<double> _glowPulse;
+
+  // Loading states
   final List<String> _loadingMessages = [
-    'CONNECTING TO MAINFRAME...',
-    'DECRYPTING CORE DATA...',
-    'CALIBRATING NEURAL INTERFACE...',
-    'INITIALIZING UI...',
-    'SYSTEM READY.',
+    'INITIALIZING EVENT MATRIX...',
+    'CONNECTING TO EVENT SERVERS...',
+    'SYNCING REGISTRATION DATA...',
+    'LOADING PARTICIPANT DATABASE...',
+    'CALIBRATING EVENT ALGORITHMS...',
+    'SYSTEM READY FOR EVENTS!',
   ];
   int _currentMessageIndex = 0;
   Timer? _messageTimer;
@@ -72,49 +83,73 @@ class _AnimatedSplashUIState extends State<AnimatedSplashUI>
   @override
   void initState() {
     super.initState();
+    _initializeAnimations();
+    _startLoadingSequence();
+  }
 
-    _fadeController = AnimationController(
+  void _initializeAnimations() {
+    // Logo animation
+    _logoController = AnimationController(
+      duration: const Duration(seconds: 3),
       vsync: this,
-      duration: const Duration(milliseconds: 1500),
-    )..forward();
+    );
 
-    _fadeAnimation = Tween<double>(
+    _logoScale = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _logoController, curve: Curves.elasticOut),
+    );
+
+    // Particle system
+    _particleController = AnimationController(
+      duration: const Duration(seconds: 8),
+      vsync: this,
+    )..repeat();
+
+    // Text animations
+    _textController = AnimationController(
+      duration: const Duration(milliseconds: 800),
+      vsync: this,
+    );
+
+    _textOpacity = Tween<double>(
       begin: 0.0,
       end: 1.0,
-    ).animate(CurvedAnimation(parent: _fadeController, curve: Curves.easeIn));
+    ).animate(CurvedAnimation(parent: _textController, curve: Curves.easeIn));
 
-    _neonSweepController = AnimationController(
-      vsync: this,
+    // Progress animation
+    _progressController = AnimationController(
       duration: const Duration(seconds: 4),
-    )..repeat();
-
-    _logoPulseController = AnimationController(
       vsync: this,
-      duration: const Duration(milliseconds: 1400),
-      lowerBound: 0.9,
-      upperBound: 1.06,
-    )..repeat(reverse: true);
+    );
 
-    _glitchController = AnimationController(
-      vsync: this,
-      duration: const Duration(milliseconds: 1200),
-    )..repeat();
+    _progressValue = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _progressController, curve: Curves.easeInOut),
+    );
 
-    _particleController = AnimationController(
-      vsync: this,
-      duration: const Duration(seconds: 6),
-    )..repeat();
-
-    _glowPulseController = AnimationController(
-      vsync: this,
+    // Glow effects
+    _glowController = AnimationController(
       duration: const Duration(seconds: 2),
-      lowerBound: 0.7,
-      upperBound: 1.0,
+      vsync: this,
     )..repeat(reverse: true);
 
-    // Timer to cycle through loading messages
-    _messageTimer = Timer.periodic(const Duration(milliseconds: 800), (timer) {
-      if (_currentMessageIndex < _loadingMessages.length - 1) {
+    _glowPulse = Tween<double>(begin: 0.5, end: 1.0).animate(
+      CurvedAnimation(parent: _glowController, curve: Curves.easeInOut),
+    );
+
+    // Circuit animation
+    _circuitController = AnimationController(
+      duration: const Duration(seconds: 6),
+      vsync: this,
+    )..repeat();
+
+    // Start animations
+    _logoController.forward();
+    _textController.forward();
+    _progressController.forward();
+  }
+
+  void _startLoadingSequence() {
+    _messageTimer = Timer.periodic(const Duration(milliseconds: 700), (timer) {
+      if (mounted && _currentMessageIndex < _loadingMessages.length - 1) {
         setState(() {
           _currentMessageIndex++;
         });
@@ -126,12 +161,12 @@ class _AnimatedSplashUIState extends State<AnimatedSplashUI>
 
   @override
   void dispose() {
-    _neonSweepController.dispose();
-    _glowPulseController.dispose();
-    _logoPulseController.dispose();
-    _glitchController.dispose();
+    _logoController.dispose();
     _particleController.dispose();
-    _fadeController.dispose();
+    _textController.dispose();
+    _progressController.dispose();
+    _glowController.dispose();
+    _circuitController.dispose();
     _messageTimer?.cancel();
     super.dispose();
   }
@@ -139,321 +174,187 @@ class _AnimatedSplashUIState extends State<AnimatedSplashUI>
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: darkBackground,
       body: Stack(
         children: [
-          // Base gradient
-          Container(
-            decoration: BoxDecoration(gradient: CyberpunkTheme.primaryGradient),
-          ),
+          // Animated background gradient
+          _buildAnimatedBackground(),
 
-          // --- Enhanced cyberpunk game-like background ---
-          // Distant star glimmer (subtle)
-          AnimatedBuilder(
-            animation: _glowPulseController,
-            builder: (context, child) => Positioned.fill(
-              child: CustomPaint(
-                painter: _StarfieldPainter(_glowPulseController.value),
-              ),
-            ),
-          ),
+          // Floating particles
+          _buildParticleSystem(),
 
-          // City silhouette (parallax)
-          AnimatedBuilder(
-            animation: _neonSweepController,
-            builder: (context, child) => Positioned.fill(
-              child: CustomPaint(
-                painter: _CityParallaxPainter(_neonSweepController.value),
-              ),
-            ),
-          ),
+          // Circuit pattern overlay
+          _buildCircuitPattern(),
 
-          // Neon signs and billboards (flicker)
-          AnimatedBuilder(
-            animation: Listenable.merge([
-              _neonSweepController,
-              _glowPulseController,
-            ]),
-            builder: (context, child) => Positioned.fill(
-              child: CustomPaint(
-                painter: _NeonSignPainter(
-                  _neonSweepController.value,
-                  _glowPulseController.value,
-                ),
-              ),
-            ),
-          ),
+          // Christ Logo at top
+          _buildChristLogo(),
 
-          // Fog / volumetric layers
-          AnimatedBuilder(
-            animation: _glowPulseController,
-            builder: (context, child) => Positioned.fill(
-              child: CustomPaint(
-                painter: _FogPainter(_glowPulseController.value),
-              ),
-            ),
-          ),
+          // Main content
+          _buildMainContent(),
 
-          // Hover cars (silhouette streaks)
-          AnimatedBuilder(
-            animation: _neonSweepController,
-            builder: (context, child) => Positioned.fill(
-              child: CustomPaint(
-                painter: _HoverCarPainter(_neonSweepController.value),
-              ),
-            ),
-          ),
-
-          // Perspective grid floor
-          AnimatedBuilder(
-            animation: _neonSweepController,
-            builder: (context, child) => Positioned.fill(
-              child: CustomPaint(
-                painter: _GridFloorPainter(_neonSweepController.value),
-              ),
-            ),
-          ),
-
-          // Rain overlay (subtle direction and speed)
-          AnimatedBuilder(
-            animation: _neonSweepController,
-            builder: (context, child) => Positioned.fill(
-              child: CustomPaint(
-                painter: _RainPainter(_neonSweepController.value),
-              ),
-            ),
-          ),
-
-          // Chromatic aberration / color fringe for game-like lens
-          Positioned.fill(
-            child: IgnorePointer(
-              child: CustomPaint(painter: _ChromaticAberrationPainter()),
-            ),
-          ),
-
-          // Soft neon wash to tint the scene
-          Positioned.fill(
-            child: IgnorePointer(
-              child: Container(
-                decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    begin: Alignment.topCenter,
-                    end: Alignment.bottomCenter,
-                    colors: [
-                      CyberpunkTheme.neonPink.withOpacity(0.06),
-                      CyberpunkTheme.neonCyan.withOpacity(0.06),
-                      Colors.transparent,
-                    ],
-                    stops: const [0.0, 0.5, 1.0],
-                  ),
-                  backgroundBlendMode: BlendMode.overlay,
-                ),
-              ),
-            ),
-          ),
-
-          // Scanline overlay for retro CRT effect
-          Positioned.fill(
-            child: IgnorePointer(
-              child: CustomPaint(painter: _ScanlinePainter(opacity: 0.06)),
-            ),
-          ),
-
-          // Foreground content with fade transition
-          FadeTransition(
-            opacity: _fadeAnimation,
-            child: Center(child: _buildContent()),
-          ),
+          // Loading progress at bottom
+          _buildLoadingProgress(),
         ],
       ),
     );
   }
 
-  Widget _buildContent() {
-    return SafeArea(
+  Widget _buildAnimatedBackground() {
+    return AnimatedBuilder(
+      animation: _particleController,
+      builder: (context, child) {
+        return Container(
+          decoration: BoxDecoration(
+            gradient: RadialGradient(
+              center: Alignment(
+                sin(_particleController.value * 2 * pi) * 0.3,
+                cos(_particleController.value * 2 * pi) * 0.2,
+              ),
+              radius: 1.5,
+              colors: [
+                cyberCyan.withOpacity(0.15),
+                cyberPurple.withOpacity(0.1),
+                cyberPink.withOpacity(0.05),
+                darkBackground,
+                Colors.black,
+              ],
+              stops: const [0.0, 0.3, 0.5, 0.8, 1.0],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildParticleSystem() {
+    return AnimatedBuilder(
+      animation: _particleController,
+      builder: (context, child) {
+        return CustomPaint(
+          size: Size.infinite,
+          painter: EventParticlesPainter(_particleController.value),
+        );
+      },
+    );
+  }
+
+  Widget _buildCircuitPattern() {
+    return AnimatedBuilder(
+      animation: _circuitController,
+      builder: (context, child) {
+        return CustomPaint(
+          size: Size.infinite,
+          painter: CircuitPatternPainter(_circuitController.value),
+        );
+      },
+    );
+  }
+
+  Widget _buildMainContent() {
+    return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Spacer(flex: 3),
-          _buildLogo(),
-          const SizedBox(height: 24),
-          _buildGlitchyTitle('GATEWAYS 2025'),
-          const SizedBox(height: 8),
-          Text(
-            'Powered by COMPUTER SCIENCE',
-            style: CyberpunkTheme.subtitleStyle,
-          ),
-          const Spacer(flex: 4),
-          _buildLoadingIndicator(),
-          const SizedBox(height: 48),
-          Text('Version 1.0.0', style: CyberpunkTheme.versionStyle),
+          // Animated logo section (Gateways only)
+          _buildGatewaysLogo(),
+
+          const SizedBox(height: 60),
+
+          // App title with glow effect
+          _buildTitle(),
+
           const SizedBox(height: 20),
+
+          // Subtitle
+          _buildSubtitle(),
+
+          const SizedBox(height: 40),
         ],
       ),
     );
   }
 
-  Widget _buildLogo() {
-    return SizedBox(
-      width: 120,
-      height: 120,
+  Widget _buildChristLogo() {
+    return Positioned(
+      top: 60,
+      left: 50,
+      right: 50,
       child: AnimatedBuilder(
-        animation: Listenable.merge([
-          _neonSweepController,
-          _logoPulseController,
-          _glitchController,
-          _particleController,
-        ]),
+        animation: Listenable.merge([_logoController, _glowController]),
         builder: (context, child) {
-          // Subtle horizontal oscillation for logo
-          final t = _neonSweepController.value;
-          final offsetX = sin(t * 2 * pi) * 2.5;
-          final scale = _logoPulseController.value;
-          final g = _glitchController.value; // 0..1
-          final glitchPeak = (sin(g * 20 * pi));
-          final glitchOffset = glitchPeak * (g > 0.6 ? 6.0 : 1.5);
-          return Transform.translate(
-            offset: Offset(offsetX, 0),
-            child: Transform.scale(
-              scale: scale,
-              child: Stack(
-                alignment: Alignment.center,
-                children: [
-                  // animated rings behind the logo
-                  SizedBox(
-                    width: 160,
-                    height: 160,
-                    child: CustomPaint(
-                      painter: _LogoRingsPainter(_particleController.value),
-                    ),
+          return Transform.scale(
+            scale: _logoScale.value,
+            child: Container(
+              height: 80,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(15),
+                gradient: LinearGradient(
+                  colors: [
+                    neonGreen.withOpacity(0.3),
+                    cyberYellow.withOpacity(0.2),
+                    cyberCyan.withOpacity(0.15),
+                    cyberPurple.withOpacity(0.1),
+                  ],
+                ),
+                border: Border.all(color: neonGreen.withOpacity(0.8), width: 2),
+                boxShadow: [
+                  BoxShadow(
+                    color: neonGreen.withOpacity(_glowPulse.value * 0.8),
+                    blurRadius: 30,
+                    spreadRadius: 8,
                   ),
-                  // subtle particle burst overlay
-                  SizedBox(
-                    width: 120,
-                    height: 120,
-                    child: CustomPaint(
-                      painter: _ParticleBurstPainter(_particleController.value),
-                    ),
+                  BoxShadow(
+                    color: cyberYellow.withOpacity(_glowPulse.value * 0.6),
+                    blurRadius: 50,
+                    spreadRadius: 5,
                   ),
-                  // color-split tinted layers for glitch fringe
-                  // left tint (magenta-ish)
-                  Transform.translate(
-                    offset: Offset(
-                      -glitchOffset * 0.8 + sin(t * 2 * pi) * 1.2,
-                      0,
-                    ),
-                    child: Opacity(
-                      opacity: 0.9,
-                      child: ClipPath(
-                        clipper: _HexagonClipper(),
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          color: CyberpunkTheme.neonYellow.withOpacity(0.0),
-                          child: ClipPath(
-                            clipper: _HexagonClipper(),
-                            child: Container(
-                              color: CyberpunkTheme.background,
-                              child: Icon(
-                                Icons.event_note,
-                                size: 60,
-                                color: CyberpunkTheme.neonPink.withOpacity(
-                                  0.95,
-                                ),
-                                shadows: [],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                  BoxShadow(
+                    color: cyberCyan.withOpacity(_glowPulse.value * 0.4),
+                    blurRadius: 70,
+                    spreadRadius: 3,
                   ),
-
-                  // right tint (cyan-ish)
-                  Transform.translate(
-                    offset: Offset(
-                      glitchOffset * 0.9 + sin(t * 2 * pi + 1.3) * 0.8,
-                      0,
-                    ),
-                    child: Opacity(
-                      opacity: 0.7,
-                      child: ClipPath(
-                        clipper: _HexagonClipper(),
-                        child: Container(
-                          padding: const EdgeInsets.all(4),
-                          color: CyberpunkTheme.neonYellow.withOpacity(0.0),
-                          child: ClipPath(
-                            clipper: _HexagonClipper(),
-                            child: Container(
-                              color: CyberpunkTheme.background,
-                              child: Icon(
-                                Icons.event_note,
-                                size: 60,
-                                color: CyberpunkTheme.neonCyan.withOpacity(0.9),
-                                shadows: [],
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // main logo layer
-                  ClipPath(
-                    clipper: _HexagonClipper(),
-                    child: Container(
-                      padding: const EdgeInsets.all(4),
-                      color: CyberpunkTheme.neonYellow.withOpacity(0.8),
-                      child: ClipPath(
-                        clipper: _HexagonClipper(),
-                        child: Container(
-                          color: CyberpunkTheme.background,
-                          child: Icon(
-                            Icons.event_note,
-                            size: 60,
-                            color: CyberpunkTheme.neonCyan,
-                            shadows: [
-                              Shadow(
-                                color: CyberpunkTheme.neonCyan.withOpacity(0.8),
-                                blurRadius: 18,
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                  ),
-
-                  // horizontal slice displacement when glitch peaks
-                  if (g > 0.55)
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      top: 40 + sin(g * 8.0) * 6.0,
-                      height: 18,
-                      child: Transform.translate(
-                        offset: Offset(glitchOffset * 2.5, 0),
-                        child: ClipRect(
-                          child: Align(
-                            alignment: Alignment.topCenter,
-                            heightFactor: 0.15,
-                            child: ClipPath(
-                              clipper: _HexagonClipper(),
-                              child: Container(
-                                color: Colors.transparent,
-                                child: Icon(
-                                  Icons.event_note,
-                                  size: 60,
-                                  color: CyberpunkTheme.neonCyan.withOpacity(
-                                    0.95,
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
                 ],
+              ),
+              child: Container(
+                margin: const EdgeInsets.all(4),
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(11),
+                  color: darkBackground.withOpacity(0.9),
+                  boxShadow: [
+                    BoxShadow(
+                      color: neonGreen.withOpacity(0.3),
+                      blurRadius: 10,
+                      spreadRadius: 1,
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(11),
+                  child: Image.asset(
+                    'assets/icons/christ logo.png',
+                    fit: BoxFit.contain,
+                    height: 72,
+                    color: neonGreen,
+                    colorBlendMode: BlendMode.srcIn,
+                    errorBuilder: (context, error, stackTrace) {
+                      return Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(11),
+                          gradient: LinearGradient(
+                            colors: [neonGreen, cyberYellow, cyberCyan],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                        ),
+                        child: Icon(
+                          Icons.church,
+                          size: 40,
+                          color: darkBackground,
+                        ),
+                      );
+                    },
+                  ),
+                ),
               ),
             ),
           );
@@ -462,533 +363,378 @@ class _AnimatedSplashUIState extends State<AnimatedSplashUI>
     );
   }
 
-  Widget _buildGlitchyTitle(String text) {
+  Widget _buildGatewaysLogo() {
     return AnimatedBuilder(
-      animation: Listenable.merge([_neonSweepController, _glitchController]),
+      animation: Listenable.merge([_logoController, _glowController]),
       builder: (context, child) {
-        final t = _neonSweepController.value;
-        final g = _glitchController.value;
-        final sweepOffset = sin(t * 2 * pi) * 4.0;
-        final glitchOffset = (sin(g * 20 * pi) * 6.0) * (g > 0.6 ? 1.0 : 0.2);
-        final colorSweep = Color.lerp(
-          CyberpunkTheme.neonPink,
-          CyberpunkTheme.neonCyan,
-          (sin(t * 2 * pi) + 1) / 2,
-        )!;
-
-        // layered color split with small jitter to simulate a digital glitch
-        return Stack(
-          children: [
-            Transform.translate(
-              offset: Offset(sweepOffset + glitchOffset * 0.6, 0),
-              child: Text(
-                text,
-                style: CyberpunkTheme.headlineStyle.copyWith(
-                  color: colorSweep.withOpacity(0.7),
-                  shadows: [],
+        return Transform.scale(
+          scale: _logoScale.value,
+          child: Container(
+            width: 140,
+            height: 140,
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: LinearGradient(
+                colors: [
+                  cyberCyan.withOpacity(0.3),
+                  cyberPurple.withOpacity(0.2),
+                  cyberPink.withOpacity(0.15),
+                  cyberYellow.withOpacity(0.1),
+                ],
+              ),
+              border: Border.all(color: cyberCyan.withOpacity(0.8), width: 3),
+              boxShadow: [
+                BoxShadow(
+                  color: cyberCyan.withOpacity(_glowPulse.value * 0.8),
+                  blurRadius: 40,
+                  spreadRadius: 15,
+                ),
+                BoxShadow(
+                  color: cyberPink.withOpacity(_glowPulse.value * 0.6),
+                  blurRadius: 60,
+                  spreadRadius: 8,
+                ),
+                BoxShadow(
+                  color: cyberPurple.withOpacity(_glowPulse.value * 0.4),
+                  blurRadius: 80,
+                  spreadRadius: 5,
+                ),
+              ],
+            ),
+            child: Container(
+              margin: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: darkBackground.withOpacity(0.9),
+                boxShadow: [
+                  BoxShadow(
+                    color: cyberCyan.withOpacity(0.3),
+                    blurRadius: 15,
+                    spreadRadius: 2,
+                  ),
+                ],
+              ),
+              child: ClipOval(
+                child: Image.asset(
+                  'assets/icons/Gateways logo.png',
+                  fit: BoxFit.contain,
+                  width: 120,
+                  height: 120,
+                  color: Colors.white,
+                  colorBlendMode: BlendMode.srcIn,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Container(
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [cyberCyan, cyberPurple, cyberPink],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                      ),
+                      child: Icon(
+                        Icons.event_available,
+                        size: 60,
+                        color: darkBackground,
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
-            Transform.translate(
-              offset: Offset(-sweepOffset - glitchOffset * 0.9, 0),
-              child: Text(
-                text,
-                style: CyberpunkTheme.headlineStyle.copyWith(
-                  color: colorSweep.withOpacity(0.45),
-                  shadows: [],
-                ),
-              ),
-            ),
-            // main layer with micro jitter when glitch peaks
-            Transform.translate(
-              offset: Offset((glitchOffset * 0.4) * (g > 0.8 ? 1 : 0), 0),
-              child: Text(text, style: CyberpunkTheme.headlineStyle),
-            ),
-          ],
+          ),
         );
       },
     );
   }
 
-  Widget _buildLoadingIndicator() {
-    return Column(
-      children: [
-        SizedBox(
-          width: 250,
-          child: Text(
-            _loadingMessages[_currentMessageIndex],
-            textAlign: TextAlign.center,
-            style: CyberpunkTheme.loadingStyle,
-          ),
-        ),
-        const SizedBox(height: 16),
-        // Animated loading bar
-        AnimatedBuilder(
-          animation:
-              _fadeController, // Using fade controller for a one-shot animation
-          builder: (context, child) => Container(
-            height: 2,
-            width: 150,
-            color: CyberpunkTheme.neonYellow.withOpacity(0.3),
-            alignment: Alignment.centerLeft,
-            child: Container(
-              height: 2,
-              width: 150 * _fadeController.value,
-              decoration: BoxDecoration(
-                color: CyberpunkTheme.neonYellow,
-                boxShadow: [
-                  BoxShadow(
-                    color: CyberpunkTheme.neonYellow,
-                    blurRadius: 8,
-                    spreadRadius: 1,
+  Widget _buildTitle() {
+    return AnimatedBuilder(
+      animation: Listenable.merge([_textController, _glowController]),
+      builder: (context, child) {
+        return Opacity(
+          opacity: _textOpacity.value,
+          child: ShaderMask(
+            shaderCallback: (bounds) {
+              return LinearGradient(
+                colors: [cyberCyan, cyberPink, cyberYellow],
+              ).createShader(bounds);
+            },
+            child: Text(
+              'GATEWAYS',
+              style: TextStyle(
+                fontSize: 48,
+                fontWeight: FontWeight.w900,
+                letterSpacing: 4,
+                color: Colors.white,
+                fontFamily: 'monospace',
+                shadows: [
+                  Shadow(
+                    color: cyberCyan.withOpacity(_glowPulse.value),
+                    blurRadius: 20,
                   ),
                 ],
               ),
             ),
           ),
-        ),
-      ],
+        );
+      },
+    );
+  }
+
+  Widget _buildSubtitle() {
+    return AnimatedBuilder(
+      animation: _textController,
+      builder: (context, child) {
+        return Opacity(
+          opacity: _textOpacity.value * 0.8,
+          child: Container(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(20),
+              border: Border.all(color: neonGreen.withOpacity(0.6)),
+              gradient: LinearGradient(
+                colors: [neonGreen.withOpacity(0.1), Colors.transparent],
+              ),
+            ),
+            child: Text(
+              'EVENT REGISTRATION PORTAL',
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                letterSpacing: 2,
+                color: neonGreen,
+                fontFamily: 'monospace',
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLoadingMessage() {
+    return AnimatedBuilder(
+      animation: _textController,
+      builder: (context, child) {
+        return Container(
+          height: 60,
+          alignment: Alignment.center,
+          child: AnimatedSwitcher(
+            duration: const Duration(milliseconds: 500),
+            child: Text(
+              _loadingMessages[_currentMessageIndex],
+              key: ValueKey(_currentMessageIndex),
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: cyberYellow.withOpacity(0.8),
+                fontFamily: 'monospace',
+                letterSpacing: 1,
+              ),
+              textAlign: TextAlign.center,
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLoadingProgress() {
+    return Positioned(
+      bottom: 80,
+      left: 40,
+      right: 40,
+      child: Column(
+        children: [
+          // Loading message
+          _buildLoadingMessage(),
+
+          const SizedBox(height: 20),
+
+          // Progress bar
+          AnimatedBuilder(
+            animation: _progressController,
+            builder: (context, child) {
+              return Container(
+                height: 4,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(2),
+                  color: cardBackground,
+                ),
+                child: Stack(
+                  children: [
+                    // Background
+                    Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(2),
+                        color: cardBackground,
+                      ),
+                    ),
+                    // Progress fill
+                    FractionallySizedBox(
+                      widthFactor: _progressValue.value,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(2),
+                          gradient: LinearGradient(
+                            colors: [cyberCyan, cyberPink],
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: cyberCyan.withOpacity(0.5),
+                              blurRadius: 8,
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              );
+            },
+          ),
+          const SizedBox(height: 20),
+          // Progress percentage
+          AnimatedBuilder(
+            animation: _progressController,
+            builder: (context, child) {
+              return Text(
+                '${(_progressValue.value * 100).toInt()}%',
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w600,
+                  color: cyberCyan.withOpacity(0.8),
+                  fontFamily: 'monospace',
+                ),
+              );
+            },
+          ),
+        ],
+      ),
     );
   }
 }
 
-/// Custom clipper for an angular, hexagonal shape.
-class _HexagonClipper extends CustomClipper<Path> {
-  @override
-  Path getClip(Size size) {
-    final path = Path();
-    path.moveTo(size.width * 0.25, 0);
-    path.lineTo(size.width * 0.75, 0);
-    path.lineTo(size.width, size.height * 0.5);
-    path.lineTo(size.width * 0.75, size.height);
-    path.lineTo(size.width * 0.25, size.height);
-    path.lineTo(0, size.height * 0.5);
-    path.close();
-    return path;
-  }
+// Custom painter for event-themed particles
+class EventParticlesPainter extends CustomPainter {
+  final double animationValue;
 
-  @override
-  bool shouldReclip(covariant CustomClipper<Path> oldClipper) => false;
-}
-
-// (Grid/scanline painter removed; replaced with animated neon sweep and glow)
-
-// ------------------ Background Painters ------------------
-
-/// Subtle starfield that twinkles based on a pulse value (0.0 - 1.0).
-class _StarfieldPainter extends CustomPainter {
-  final double pulse; // 0..1
-  _StarfieldPainter(this.pulse);
+  EventParticlesPainter(this.animationValue);
 
   @override
   void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-    // Deterministic pseudo-random placement using math functions so frames
-    // don't jump between rebuilds.
-    const int rows = 12;
-    const int cols = 18;
-    final rngFactor = pulse * 2 * pi;
+    final paint = Paint();
 
-    for (int r = 0; r < rows; r++) {
-      for (int c = 0; c < cols; c++) {
-        final nx = (c + 0.5) / cols;
-        final ny = (r + 0.5) / rows;
-        // position jitter using sin/cos ensures deterministic variation
-        final jitterX = (sin((r * 13 + c * 7) * 0.37 + rngFactor) * 0.35);
-        final jitterY = (cos((r * 11 + c * 5) * 0.33 + rngFactor) * 0.35);
+    // Event icons as particles
+    const colors = [
+      Color(0xFF00F0FF), // cyberCyan
+      Color(0xFFFF0080), // cyberPink
+      Color(0xFFFFFF00), // cyberYellow
+      Color(0xFF00FF88), // neonGreen
+    ];
 
-        final dx = (nx + jitterX * 0.02) * size.width;
-        final dy = (ny + jitterY * 0.02) * size.height * 0.6; // upper area
+    for (int i = 0; i < 30; i++) {
+      final progress = (animationValue + i * 0.1) % 1.0;
+      final x = (sin(i * 2.0 + animationValue * 2) * 0.4 + 0.5) * size.width;
+      final y = (progress * 1.2 - 0.1) * size.height;
 
-        final seed = (r * 31 + c * 17);
-        final baseSize = 0.6 + (seed % 5) * 0.2;
-        final twinkle = 0.6 + 0.4 * (0.5 + 0.5 * sin(rngFactor + seed));
+      if (y >= 0 && y <= size.height) {
+        final opacity = sin(progress * pi) * 0.6;
+        final color = colors[i % colors.length];
 
-        paint.color = Colors.white.withOpacity(0.02 * baseSize * twinkle);
-        canvas.drawCircle(Offset(dx, dy), baseSize, paint);
+        paint.color = color.withOpacity(opacity);
+        paint.style = PaintingStyle.fill;
 
-        // occasional brighter spark
-        if ((seed + pulse * 10).floor() % 13 == 0) {
-          paint.color = CyberpunkTheme.neonCyan.withOpacity(0.06 * twinkle);
-          canvas.drawCircle(
-            Offset(dx + baseSize * 1.4, dy - baseSize * 0.6),
-            baseSize * 0.6,
+        // Draw event-related shapes
+        if (i % 3 == 0) {
+          // Calendar icon
+          canvas.drawRRect(
+            RRect.fromRectAndRadius(
+              Rect.fromCenter(center: Offset(x, y), width: 6, height: 6),
+              const Radius.circular(1),
+            ),
             paint,
           );
+        } else if (i % 3 == 1) {
+          // Star for events
+          _drawStar(canvas, Offset(x, y), 3, paint);
+        } else {
+          // Simple circle
+          canvas.drawCircle(Offset(x, y), 2, paint);
         }
       }
     }
   }
 
-  @override
-  bool shouldRepaint(covariant _StarfieldPainter oldDelegate) =>
-      oldDelegate.pulse != pulse;
-}
+  void _drawStar(Canvas canvas, Offset center, double radius, Paint paint) {
+    const points = 5;
+    final angle = (2 * pi) / points;
+    final path = Path();
 
-/// Parallax city silhouettes: several layers moving at different speeds.
-class _CityParallaxPainter extends CustomPainter {
-  final double phase; // 0..1
-  _CityParallaxPainter(this.phase);
+    for (int i = 0; i < points * 2; i++) {
+      final r = i % 2 == 0 ? radius : radius * 0.5;
+      final x = center.dx + r * cos(i * angle - pi / 2);
+      final y = center.dy + r * sin(i * angle - pi / 2);
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final horizon = size.height * 0.46;
-
-    // Night glow behind skyline
-    final glowPaint = Paint()
-      ..shader = RadialGradient(
-        center: const Alignment(0, -0.5),
-        colors: [CyberpunkTheme.neonPink.withOpacity(0.12), Colors.transparent],
-        stops: const [0.0, 1.0],
-      ).createShader(Rect.fromLTWH(0, 0, size.width, horizon * 2));
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, horizon), glowPaint);
-
-    // Draw three parallax layers, far -> near
-    for (int layer = 0; layer < 3; layer++) {
-      final paint = Paint()
-        ..style = PaintingStyle.fill
-        ..color = Color.lerp(
-          CyberpunkTheme.background.withOpacity(0.65),
-          CyberpunkTheme.neonCyan.withOpacity(0.15),
-          layer / 3,
-        )!;
-
-      final path = Path();
-      final speed = (0.04 + layer * 0.06);
-      final offsetX = (phase * size.width * speed * (layer + 1));
-
-      path.moveTo(-size.width + offsetX % size.width, horizon + layer * 8);
-
-      // skyline silhouette using deterministic waves
-      final buildings = 14 + layer * 6;
-      final bw = size.width / buildings;
-      for (int i = 0; i <= buildings; i++) {
-        final x = (-size.width + offsetX % size.width) + i * bw;
-        final noise =
-            (sin((i * 0.9 + layer * 1.3) * 1.5 + phase * 2 * pi) + 1) / 2;
-        final h = (30 + noise * (120 + layer * 40)) + layer * 6;
-        path.lineTo(x, horizon - h);
+      if (i == 0) {
+        path.moveTo(x, y);
+      } else {
+        path.lineTo(x, y);
       }
-
-      path.lineTo(size.width, size.height);
-      path.lineTo(0, size.height);
-      path.close();
-
-      canvas.drawPath(path, paint);
     }
-
-    // Neon windows: simple grid of tiny rectangles on mid-layer buildings
-    final windowPaint = Paint()
-      ..color = CyberpunkTheme.neonYellow.withOpacity(0.06);
-    for (int i = 0; i < 24; i++) {
-      final x = (i / 24) * size.width + (sin(phase * 2 * pi + i) * 6);
-      final y = horizon - 40.0 - (i % 6) * 8.0;
-      canvas.drawRect(Rect.fromLTWH(x, y, 3, 3), windowPaint);
-    }
+    path.close();
+    canvas.drawPath(path, paint);
   }
 
   @override
-  bool shouldRepaint(covariant _CityParallaxPainter oldDelegate) =>
-      oldDelegate.phase != phase;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }
 
-/// Perspective grid floor that recedes to a vanishing point.
-class _GridFloorPainter extends CustomPainter {
-  final double phase;
-  _GridFloorPainter(this.phase);
+// Custom painter for circuit pattern
+class CircuitPatternPainter extends CustomPainter {
+  final double animationValue;
+
+  CircuitPatternPainter(this.animationValue);
 
   @override
   void paint(Canvas canvas, Size size) {
     final paint = Paint()
       ..style = PaintingStyle.stroke
-      ..strokeWidth = 1.0
-      ..color = CyberpunkTheme.neonCyan.withOpacity(0.12);
+      ..strokeWidth = 1;
 
-    final horizonY = size.height * 0.52;
-    final vanishing = Offset(
-      size.width / 2 + sin(phase * 2 * pi) * 30,
-      horizonY - 20,
-    );
+    const cyberCyan = Color(0xFF00F0FF);
+    const cyberPink = Color(0xFFFF0080);
 
-    // radial perspective lines
-    final cols = 14;
-    for (int i = 0; i <= cols; i++) {
-      final x = (i / cols) * size.width;
-      canvas.drawLine(Offset(x, size.height), vanishing, paint);
-    }
-
-    // horizontal grid lines (curved illusion by lerping between bottom and horizon)
-    final rows = 16;
-    for (int r = 1; r <= rows; r++) {
-      final t = r / rows;
-      // compute base Y for this horizontal grid line
-      final baseYFallback = (size.height * (1 - t) + horizonY * t);
-      final linePaint = paint
-        ..color = paint.color.withOpacity(0.06 + (1 - t) * 0.18);
-      // draw polyline from left to right by sampling points closer to vanishing point
-      final samples = 36;
-      final path = Path();
-      for (int s = 0; s <= samples; s++) {
-        final sx = s / samples;
-        // interpolate between left/right bottom and vanishing
-        final left = Offset(0, size.height);
-        final right = Offset(size.width, size.height);
-        final px = ui.lerpDouble(left.dx, right.dx, sx)!;
-        final baseY = ui.lerpDouble(size.height, horizonY, t) ?? baseYFallback;
-        // slight wave animation
-        final wave = sin((sx + phase) * 6.0 + r) * (6.0 * (1 - t));
-        final py = baseY - wave;
-        if (s == 0)
-          path.moveTo(px, py);
-        else
-          path.lineTo(px, py);
-      }
-      canvas.drawPath(path, linePaint);
-    }
-
-    // faint neon highlight near vanishing point
-    final highlight = Paint()
-      ..color = CyberpunkTheme.neonPink.withOpacity(0.05);
-    canvas.drawCircle(vanishing, 28.0, highlight);
-  }
-
-  @override
-  bool shouldRepaint(covariant _GridFloorPainter oldDelegate) =>
-      oldDelegate.phase != phase;
-}
-
-/// Thin scanlines overlay for CRT retro look.
-class _ScanlinePainter extends CustomPainter {
-  final double opacity;
-  _ScanlinePainter({this.opacity = 0.04});
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.black.withOpacity(opacity);
-    final spacing = 3.0;
-    for (double y = 0; y < size.height; y += spacing) {
-      canvas.drawRect(Rect.fromLTWH(0, y, size.width, 1.0), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ScanlinePainter oldDelegate) =>
-      oldDelegate.opacity != opacity;
-}
-
-/// Neon sign flicker and billboard painter.
-class _NeonSignPainter extends CustomPainter {
-  final double phase; // 0..1
-  final double pulse; // 0..1
-  _NeonSignPainter(this.phase, this.pulse);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-    final signs = 6;
-    for (int i = 0; i < signs; i++) {
-      final x = (i / signs) * size.width + sin(phase * 2 * pi + i) * 12;
-      final y = size.height * 0.32 + (i % 2) * 12.0;
-      final w = 60.0 + (i % 3) * 12.0;
-      final h = 16.0 + ((i + 1) % 2) * 6.0;
-
-      final flicker = 0.6 + 0.4 * (0.5 + 0.5 * sin(phase * 6.0 + i * 2.0));
-      paint.color = Color.lerp(
-        CyberpunkTheme.neonPink,
-        CyberpunkTheme.neonCyan,
-        (i % 2) / 1.0,
-      )!.withOpacity(0.18 * flicker * pulse);
-      final r = RRect.fromRectAndRadius(
-        Rect.fromLTWH(x, y, w, h),
-        Radius.circular(4),
-      );
-      canvas.drawRRect(r, paint);
-
-      // small glow
-      final glow = Paint()..color = paint.color.withOpacity(0.6);
-      canvas.drawRRect(r.inflate(6), glow);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _NeonSignPainter oldDelegate) =>
-      oldDelegate.phase != phase || oldDelegate.pulse != pulse;
-}
-
-/// Fog / volumetric layers for depth.
-class _FogPainter extends CustomPainter {
-  final double pulse;
-  _FogPainter(this.pulse);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final g = ui.Gradient.linear(
-      Offset(0, size.height * 0.2),
-      Offset(0, size.height),
-      [Colors.white.withOpacity(0.02 * pulse), Colors.transparent],
-      [0.0, 1.0],
-    );
-    final paint = Paint()
-      ..shader = g
-      ..blendMode = BlendMode.screen;
-    canvas.drawRect(
-      Rect.fromLTWH(0, size.height * 0.2, size.width, size.height * 0.8),
-      paint,
-    );
-
-    // moving fog streaks
-    final streakPaint = Paint()..color = Colors.white.withOpacity(0.03 * pulse);
+    // Draw network connections
     for (int i = 0; i < 8; i++) {
-      final offset = (pulse + i * 0.15) % 1.0;
-      final px = size.width * offset;
-      final py = size.height * (0.3 + (i % 3) * 0.08);
-      final rect = Rect.fromLTWH(px - 120, py, 240, 40);
-      canvas.drawRect(rect, streakPaint);
-    }
-  }
+      final progress = (animationValue + i * 0.2) % 1.0;
+      final opacity = sin(progress * pi) * 0.3;
 
-  @override
-  bool shouldRepaint(covariant _FogPainter oldDelegate) =>
-      oldDelegate.pulse != pulse;
-}
+      paint.color = (i % 2 == 0 ? cyberCyan : cyberPink).withOpacity(opacity);
 
-/// Hover car streaks across the skyline.
-class _HoverCarPainter extends CustomPainter {
-  final double phase;
-  _HoverCarPainter(this.phase);
+      final startX = (i / 8) * size.width;
+      final endX = ((i + 1) / 8) * size.width;
+      final y = size.height * (0.2 + sin(animationValue * 2 + i) * 0.1);
 
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-    for (int i = 0; i < 5; i++) {
-      final t = (phase + i * 0.18) % 1.0;
-      final x = size.width * (t);
-      final y = size.height * (0.38 + (i % 2) * 0.06);
-      final w = 40.0 + (i % 3) * 12.0;
-      final h = 6.0;
-      final c = Color.lerp(
-        CyberpunkTheme.neonCyan,
-        CyberpunkTheme.neonPink,
-        (sin(phase * 2 * pi + i) + 1) / 2,
-      )!;
-      paint.color = c.withOpacity(0.65);
-      // streak
-      final rect = Rect.fromLTWH(x - w * 0.5, y, w, h);
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(rect, Radius.circular(3)),
+      canvas.drawLine(
+        Offset(startX, y),
+        Offset(endX, y + sin(progress * pi * 2) * 20),
         paint,
       );
-      // glow
-      final glow = Paint()..color = paint.color.withOpacity(0.4);
-      canvas.drawRRect(
-        RRect.fromRectAndRadius(rect.inflate(6), Radius.circular(6)),
-        glow,
-      );
+    }
+
+    // Draw connection nodes
+    paint.style = PaintingStyle.fill;
+    for (int i = 0; i < 12; i++) {
+      final x = (i / 12) * size.width;
+      final y = size.height * (0.8 + sin(animationValue * 3 + i) * 0.05);
+      final opacity = (sin(animationValue * 4 + i) * 0.5 + 0.5) * 0.4;
+
+      paint.color = cyberCyan.withOpacity(opacity);
+      canvas.drawCircle(Offset(x, y), 2, paint);
     }
   }
 
   @override
-  bool shouldRepaint(covariant _HoverCarPainter oldDelegate) =>
-      oldDelegate.phase != phase;
-}
-
-/// Subtle rain overlay with direction based on phase.
-class _RainPainter extends CustomPainter {
-  final double phase;
-  _RainPainter(this.phase);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..color = Colors.white.withOpacity(0.03);
-    final speed = 800.0;
-    for (int i = 0; i < 120; i++) {
-      final x = ((i * 37) % size.width) + (phase * size.width * 0.6);
-      final y = ((i * 97) % size.height) + (phase * speed) % size.height;
-      final len = 8.0 + (i % 5) * 2.0;
-      final dx = x + sin(i) * 4.0;
-      final dy = y + cos(phase * 2 * pi) * 6.0;
-      canvas.drawLine(Offset(dx, dy), Offset(dx + 2.0, dy + len), paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _RainPainter oldDelegate) =>
-      oldDelegate.phase != phase;
-}
-
-/// Chromatic aberration effect using simple colored offsets.
-class _ChromaticAberrationPainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    final red = Paint()..color = Colors.red.withOpacity(0.02);
-    final green = Paint()..color = Colors.green.withOpacity(0.02);
-    final blue = Paint()..color = Colors.blue.withOpacity(0.02);
-    // Slight offset rectangles at edges
-    canvas.drawRect(Rect.fromLTWH(2, 0, size.width - 4, size.height), red);
-    canvas.drawRect(Rect.fromLTWH(-2, 0, size.width - 4, size.height), blue);
-    canvas.drawRect(Rect.fromLTWH(0, 0, size.width, size.height), green);
-  }
-
-  @override
-  bool shouldRepaint(covariant _ChromaticAberrationPainter oldDelegate) =>
-      false;
-}
-
-/// Animated rings behind the logo to give it a pulsating, energetic feel.
-class _LogoRingsPainter extends CustomPainter {
-  final double phase; // 0..1
-  _LogoRingsPainter(this.phase);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final center = Offset(size.width / 2, size.height / 2);
-    final base = min(size.width, size.height) / 2;
-    for (int i = 0; i < 3; i++) {
-      final t = (phase + i * 0.12) % 1.0;
-      final radius = base * (0.6 + i * 0.18 + 0.15 * sin(t * 2 * pi));
-      final alpha = 0.12 * (1 - i * 0.25) * (0.7 + 0.3 * sin(t * 2 * pi));
-      final paint = Paint()
-        ..style = PaintingStyle.stroke
-        ..strokeWidth = 2.0 + i.toDouble()
-        ..color = Color.lerp(
-          CyberpunkTheme.neonCyan,
-          CyberpunkTheme.neonPink,
-          i / 3,
-        )!.withOpacity(alpha);
-      canvas.drawCircle(center, radius, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _LogoRingsPainter oldDelegate) =>
-      oldDelegate.phase != phase;
-}
-
-/// Subtle particle burst pulses that occasionally sparkle around the logo area.
-class _ParticleBurstPainter extends CustomPainter {
-  final double phase;
-  _ParticleBurstPainter(this.phase);
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final paint = Paint()..style = PaintingStyle.fill;
-    final center = Offset(size.width / 2, size.height / 2);
-    for (int i = 0; i < 18; i++) {
-      final a = (i / 18) * 2 * pi + phase * 2 * pi;
-      final r =
-          (min(size.width, size.height) * 0.28) *
-          (0.6 + 0.4 * sin(phase * 2 * pi + i));
-      final px = center.dx + cos(a) * r + sin(i * 7 + phase) * 4.0;
-      final py = center.dy + sin(a) * r + cos(i * 5 + phase) * 3.0;
-      final s = 0.8 + (i % 3) * 0.6;
-      paint.color = CyberpunkTheme.neonYellow.withOpacity(
-        0.06 + (sin(phase * 2 * pi + i) + 1) * 0.02,
-      );
-      canvas.drawCircle(Offset(px, py), s, paint);
-    }
-  }
-
-  @override
-  bool shouldRepaint(covariant _ParticleBurstPainter oldDelegate) =>
-      oldDelegate.phase != phase;
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => true;
 }

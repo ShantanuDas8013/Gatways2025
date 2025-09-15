@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:gateways_app/screens/splash_screen.dart';
 import 'package:gateways_app/screens/welcome_screen.dart';
 import 'package:gateways_app/screens/events_screen.dart';
+import 'package:gateways_app/screens/about_screen.dart';
 
 void main() {
   runApp(const MyApp());
@@ -26,6 +27,7 @@ class MyApp extends StatelessWidget {
         '/': (context) => const SplashScreen(),
         '/welcome': (context) => const WelcomeScreen(),
         '/events': (context) => const EventsScreen(),
+        '/about': (context) => const AboutScreen(),
       },
     );
   }

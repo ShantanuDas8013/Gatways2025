@@ -336,10 +336,45 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                         children: [
                           Row(
                             children: [
-                              Icon(
-                                Icons.event_available,
-                                color: cyberCyan,
-                                size: 32,
+                              Container(
+                                width: 40,
+                                height: 40,
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  gradient: LinearGradient(
+                                    colors: [
+                                      cyberCyan.withOpacity(0.3),
+                                      cyberPurple.withOpacity(0.2),
+                                      cyberPink.withOpacity(0.1),
+                                    ],
+                                  ),
+                                  border: Border.all(
+                                    color: cyberCyan.withOpacity(0.6),
+                                    width: 2,
+                                  ),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: cyberCyan.withOpacity(0.4),
+                                      blurRadius: 8,
+                                      spreadRadius: 1,
+                                    ),
+                                  ],
+                                ),
+                                child: ClipOval(
+                                  child: Image.asset(
+                                    'assets/icons/Gateways logo.png',
+                                    fit: BoxFit.contain,
+                                    color: Colors.white,
+                                    colorBlendMode: BlendMode.srcIn,
+                                    errorBuilder: (context, error, stackTrace) {
+                                      return Icon(
+                                        Icons.event_available,
+                                        color: cyberCyan,
+                                        size: 24,
+                                      );
+                                    },
+                                  ),
+                                ),
                               ),
                               const SizedBox(width: 12),
                               GlowText(
@@ -551,7 +586,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           subtitle: 'Mission & Vision',
                           icon: Icons.palette,
                           accent: cyberYellow,
-                          onTap: () => Navigator.pushNamed(context, '/events'),
+                          onTap: () => Navigator.pushNamed(context, '/about'),
                         ),
                         // Empty container to center the ABOUT card
                         const SizedBox.shrink(),
