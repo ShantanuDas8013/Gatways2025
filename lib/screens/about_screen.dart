@@ -558,39 +558,43 @@ class _AboutScreenState extends State<AboutScreen>
                                 children: [
                                   Icon(Icons.email, color: cyberCyan, size: 24),
                                   const SizedBox(width: 12),
-                                  GestureDetector(
-                                    onTap: () async {
-                                      final Uri emailUri = Uri(
-                                        scheme: 'mailto',
-                                        path: 'gateways@cs.christuniversity.in',
-                                      );
-                                      try {
-                                        await launchUrl(emailUri);
-                                      } catch (e) {
-                                        // Fallback: show error message
-                                        if (context.mounted) {
-                                          ScaffoldMessenger.of(
-                                            context,
-                                          ).showSnackBar(
-                                            SnackBar(
-                                              content: Text(
-                                                'Could not open email app: $e',
+                                  Flexible(
+                                    child: GestureDetector(
+                                      onTap: () async {
+                                        final Uri emailUri = Uri(
+                                          scheme: 'mailto',
+                                          path:
+                                              'gateways@cs.christuniversity.in',
+                                        );
+                                        try {
+                                          await launchUrl(emailUri);
+                                        } catch (e) {
+                                          // Fallback: show error message
+                                          if (context.mounted) {
+                                            ScaffoldMessenger.of(
+                                              context,
+                                            ).showSnackBar(
+                                              SnackBar(
+                                                content: Text(
+                                                  'Could not open email app: $e',
+                                                ),
+                                                backgroundColor: Colors.red,
+                                                duration: const Duration(
+                                                  seconds: 3,
+                                                ),
                                               ),
-                                              backgroundColor: Colors.red,
-                                              duration: const Duration(
-                                                seconds: 3,
-                                              ),
-                                            ),
-                                          );
+                                            );
+                                          }
                                         }
-                                      }
-                                    },
-                                    child: Text(
-                                      'gateways@cs.christuniversity.in',
-                                      style: TextStyle(
-                                        color: cyberCyan,
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w500,
+                                      },
+                                      child: Text(
+                                        'gateways@cs.christuniversity.in',
+                                        style: TextStyle(
+                                          color: cyberCyan,
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                        overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
                                   ),

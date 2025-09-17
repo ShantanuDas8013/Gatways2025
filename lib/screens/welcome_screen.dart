@@ -448,49 +448,50 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                     const SizedBox(height: 30),
 
                     // Large Event Countdown Section
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 30,
-                        horizontal: 20,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(20),
-                        gradient: LinearGradient(
-                          colors: [
-                            cardBackground.withOpacity(0.9),
-                            surfaceColor.withOpacity(0.7),
-                            darkBackground.withOpacity(0.8),
+                    if (_timeUntilEvent > Duration.zero)
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          vertical: 30,
+                          horizontal: 20,
+                        ),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(20),
+                          gradient: LinearGradient(
+                            colors: [
+                              cardBackground.withOpacity(0.9),
+                              surfaceColor.withOpacity(0.7),
+                              darkBackground.withOpacity(0.8),
+                            ],
+                          ),
+                          border: Border.all(
+                            color: cyberCyan.withOpacity(0.3),
+                            width: 2,
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: cyberPurple.withOpacity(0.1),
+                              blurRadius: 15,
+                              spreadRadius: 1,
+                            ),
                           ],
                         ),
-                        border: Border.all(
-                          color: cyberCyan.withOpacity(0.3),
-                          width: 2,
-                        ),
-                        boxShadow: [
-                          BoxShadow(
-                            color: cyberPurple.withOpacity(0.1),
-                            blurRadius: 15,
-                            spreadRadius: 1,
-                          ),
-                        ],
-                      ),
-                      child: Column(
-                        children: [
-                          Text(
-                            'EVENT COUNTDOWN',
-                            style: TextStyle(
-                              color: cyberCyan,
-                              fontSize: 16,
-                              fontWeight: FontWeight.w700,
-                              letterSpacing: 2,
-                              fontFamily: 'monospace',
+                        child: Column(
+                          children: [
+                            Text(
+                              'EVENT COUNTDOWN',
+                              style: TextStyle(
+                                color: cyberCyan,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 2,
+                                fontFamily: 'monospace',
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 20),
-                          _buildLargeCountdownItem(),
-                        ],
+                            const SizedBox(height: 20),
+                            _buildLargeCountdownItem(),
+                          ],
+                        ),
                       ),
-                    ),
 
                     const SizedBox(height: 30),
 
@@ -537,7 +538,7 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                       crossAxisCount: 2,
                       crossAxisSpacing: 16,
                       mainAxisSpacing: 16,
-                      childAspectRatio: 0.9,
+                      childAspectRatio: 0.95,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
                       children: [
@@ -588,8 +589,38 @@ class _WelcomeScreenState extends State<WelcomeScreen>
                           accent: cyberYellow,
                           onTap: () => Navigator.pushNamed(context, '/about'),
                         ),
-                        // Empty container to center the ABOUT card
-                        const SizedBox.shrink(),
+                        EventCategoryCard(
+                          title: 'CHRIST INFO',
+                          subtitle: 'University Details',
+                          icon: Icons.info,
+                          accent: cyberPurple,
+                          onTap: () async {
+                            final url = Uri.parse(
+                              'https://christuniversity.in/',
+                            );
+                            try {
+                              await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                                webViewConfiguration:
+                                    const WebViewConfiguration(
+                                      enableJavaScript: true,
+                                    ),
+                              );
+                            } catch (e) {
+                              // Fallback: show error message
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(
+                                    'Could not open CHRIST University website: $e',
+                                  ),
+                                  backgroundColor: Colors.red,
+                                  duration: const Duration(seconds: 3),
+                                ),
+                              );
+                            }
+                          },
+                        ),
                       ],
                     ),
 
@@ -1218,7 +1249,7 @@ class _EventCategoryCardState extends State<EventCategoryCard>
                 _hoverController.reverse();
               },
               child: Container(
-                padding: const EdgeInsets.all(20),
+                padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(16),
                   gradient: LinearGradient(
@@ -1287,6 +1318,21 @@ class _EventCategoryCardState extends State<EventCategoryCard>
                                     );
                                   },
                                 )
+                              : widget.title == 'CHRIST INFO'
+                              ? Image.asset(
+                                  'assets/icons/info.png',
+                                  width: 24,
+                                  height: 24,
+                                  color: widget.accent,
+                                  fit: BoxFit.contain,
+                                  errorBuilder: (context, error, stackTrace) {
+                                    return Icon(
+                                      Icons.info_outline,
+                                      color: widget.accent,
+                                      size: 24,
+                                    );
+                                  },
+                                )
                               : Icon(
                                   widget.icon,
                                   color: widget.accent,
@@ -1317,32 +1363,32 @@ class _EventCategoryCardState extends State<EventCategoryCard>
                       ],
                     ),
 
-                    const SizedBox(height: 16),
+                    const SizedBox(height: 12),
 
                     // Title
                     Text(
                       widget.title,
                       style: TextStyle(
                         color: Colors.white,
-                        fontSize: 16,
+                        fontSize: 14,
                         fontWeight: FontWeight.w700,
                         letterSpacing: 0.5,
                       ),
                     ),
 
-                    const SizedBox(height: 4),
+                    const SizedBox(height: 2),
 
                     // Subtitle
                     Text(
                       widget.subtitle,
                       style: TextStyle(
                         color: widget.accent.withOpacity(0.7),
-                        fontSize: 12,
+                        fontSize: 11,
                         fontWeight: FontWeight.w500,
                       ),
                     ),
 
-                    const SizedBox(height: 12),
+                    const SizedBox(height: 8),
 
                     // Action indicator
                     Row(
@@ -1351,7 +1397,7 @@ class _EventCategoryCardState extends State<EventCategoryCard>
                           'Explore Events',
                           style: TextStyle(
                             color: widget.accent.withOpacity(0.6),
-                            fontSize: 11,
+                            fontSize: 10,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -1359,7 +1405,7 @@ class _EventCategoryCardState extends State<EventCategoryCard>
                         Icon(
                           Icons.arrow_forward,
                           color: widget.accent.withOpacity(0.6),
-                          size: 12,
+                          size: 10,
                         ),
                       ],
                     ),
