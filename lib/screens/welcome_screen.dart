@@ -272,7 +272,6 @@ class _WelcomeScreenState extends State<WelcomeScreen>
   static const Color cyberPink = Color(0xFFFF0080);
   static const Color cyberYellow = Color(0xFFFFFF00);
   static const Color cyberPurple = Color(0xFF9D00FF);
-  static const Color cyberOrange = Color(0xFFFF6B00);
   static const Color darkBackground = Color(0xFF0A0A0F);
   static const Color cardBackground = Color(0xFF1A1A2E);
   static const Color surfaceColor = Color(0xFF16213E);
